@@ -11,9 +11,17 @@ pub fn build(b: *std.build.Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
+    const decoder = b.addStaticLibrary("contrib_zig", "vendor/computer_enhance/perfaware/sim86/shared/contrib_zig/src/sim86.zig");
+    decoder.addCSourceFile("vendor/computer_enhance/perfaware/sim86/sim86_lib.cpp", &.{});
+    decoder.addIncludePath("vendor/computer_enhance/perfaware/sim86/shared");
+    decoder.linkLibCpp();
+    decoder.installHeader("vendor/computer_enhance/perfaware/sim86/shared/sim86_shared.h", "sim86_shared.h");
+    decoder.install();
+
     const exe = b.addExecutable("sim8086", "src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
+    exe.linkLibrary(decoder);
     exe.install();
 
     const run_cmd = exe.run();
